@@ -13,10 +13,18 @@ namespace DisableDoubleTap
     {
         public override string Name => "DisableDoubleTap";
         public override string Author => "kokoa";
-        public override string Version => "1.0.0";
-        public override string Link => "";
+        public override string Version => "1.0.1";
+        public override string Link => "https://github.com/rassi0429/DisableDoubleTap";
+
+        internal static ModConfiguration config;
+
+        [AutoRegisterConfigKey]
+        private static readonly ModConfigurationKey<bool> disableDoubleTap = new ModConfigurationKey<bool>("DisableDT", "disable double tap", () => true);
+
+
         public override void OnEngineInit()
         {
+            config = GetConfiguration();
             Harmony harmony = new Harmony("com.kokoa.DisableDoubleTap");
             harmony.PatchAll();
         }
@@ -29,8 +37,12 @@ namespace DisableDoubleTap
                 int tapCount = 2,
                 float interval = 0.25f)
             {
-                __result = new MultiTapInput(nodes, false, 3, interval);
-                return false;
+                if (config.GetValue(disableDoubleTap))
+                {
+                    __result = new MultiTapInput(nodes, false, 3, interval);
+                    return false;
+                }
+                return true;
             }
         }
     }
